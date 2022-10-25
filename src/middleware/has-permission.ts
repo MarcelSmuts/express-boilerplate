@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express'
-import Permissions from '../models/lookup-user-permissions'
 
 function hasPermission (requiredPermissions?: Array<number>) {
   return function (req: Request, res: Response, next: NextFunction) {
@@ -9,12 +8,6 @@ function hasPermission (requiredPermissions?: Array<number>) {
 
     if (!req.user || !req.user.permissions) {
       return res.Forbidden()
-    }
-
-    const isAdmin = req.user.permissions.includes(Permissions.Admin)
-
-    if (isAdmin) {
-      return next()
     }
 
     const hasAllRequiredPermissions = requiredPermissions.every(
