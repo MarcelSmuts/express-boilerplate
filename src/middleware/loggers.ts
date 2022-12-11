@@ -2,6 +2,10 @@ import { Request, Response, NextFunction, Application } from 'express'
 import { randomUUID } from 'crypto'
 import { performance } from 'perf_hooks'
 
+// Prevent logging requests for these routes as they contain passwords.
+const noLog = [
+]
+
 function requestLogger (req, res: Response, next: NextFunction) {
   const t0 = performance.now()
   console.time(req.id)
@@ -9,8 +13,8 @@ function requestLogger (req, res: Response, next: NextFunction) {
     ID: req.id,
     METHOD: req.method,
     PATH: req.path,
-    QUERY: req.query,
-    BODY: req.body
+    QUERY: noLog.includes(req.path) ? '*****' : req.query,
+    BODY: noLog.includes(req.path) ? '*****' : req.body
   })
   res.once('finish', () => {
     const t1 = performance.now()
@@ -18,7 +22,8 @@ function requestLogger (req, res: Response, next: NextFunction) {
       ID: req.id,
       METHOD: req.method,
       PATH: req.path,
-      EXECUTION_TIME: t1 - t0
+      EXECUTION_TIME: t1 - t0,
+      STATUS_CODE: res.statusCode
     })
   })
   next()

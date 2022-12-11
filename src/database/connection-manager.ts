@@ -16,7 +16,7 @@ function handleFailure (err: any) {
 }
 
 async function assertDatabaseConnection () {
-  await databaseClient.raw('select 1+1 as result')
+  return await databaseClient.raw('select 1+1 as result')
 }
 
 async function initDatabaseConnection () {
@@ -29,7 +29,11 @@ async function initDatabaseConnection () {
         port: parseInt(process.env.DATABASE_PORT || '5432'),
         user: process.env.DATABASE_USERNAME,
         password: process.env.DATABASE_PASSWORD,
-        database: process.env.DATABASE_NAME
+        database: process.env.DATABASE_NAME,
+        ssl:
+          process.env.NODE_ENV === 'development'
+            ? null
+            : { rejectUnauthorized: false }
       },
       migrations: {
         tableName: 'db_migrations'

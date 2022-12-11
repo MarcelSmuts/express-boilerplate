@@ -1,8 +1,8 @@
 import { Application } from 'express'
-import V1Routes from '../routes/v1'
+import initAuthenticationRoutes from './modules/auth'
 
 export default {
   init (app: Application) {
-    V1Routes.init(app)
+    initAuthenticationRoutes(app)
   }
 }

@@ -10,10 +10,15 @@
     "preserveConstEnums": true,
     "sourceMap": true,
     "moduleResolution": "Node",
-    "typeRoots": ["src/@types", "./node_modules/@types"]
+    "typeRoots": ["src/@types",
+      "./node_modules/@types"]
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/*.spec.ts"],
+  "include": [
+    "src/**/*" ],
+  "exclude": [
+      "node_modules",
+      "**/*.spec.ts"
+  ],
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "Recommended"
 }

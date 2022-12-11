@@ -1,7 +1,8 @@
 import axios, { AxiosError } from 'axios'
-import { Request, Response, Application, NextFunction, response } from 'express'
+import e, { Request, Response, Application, NextFunction } from 'express'
 import hasPermission from '../../middleware/has-permission'
-import { auth, noAuth } from '../../middleware/user-auth'
+import { auth } from '../../middleware/user-auth'
+import skipMiddleware from '../../middleware/skip-middleware'
 
 enum RouteMethod {
   POST = 'POST',
@@ -20,6 +21,7 @@ interface IV1Route {
     next: NextFunction
   ) => Promise<Response | undefined>
   permissions?: Array<any>
+  middleware?: Array<e.RequestHandler>
   skipAuth?: boolean
 }
 
@@ -54,11 +56,19 @@ class V1Routes {
 
   initRoutes () {
     this.routes.forEach(route => {
-      return this.app[route.method.toLowerCase()](
+      this.app[route.method.toLowerCase()](
         this.V1APIRoute(route.route),
-        route.skipAuth ? noAuth : auth,
+        route.skipAuth ? skipMiddleware : auth,
         hasPermission(route.permissions),
-        route.handler
+        route.middleware ? route.middleware : skipMiddleware,
+        async (req: Request, res: Response, next) => {
+          try {
+            return route.handler(req, res, next)
+          } catch (error) {
+            console.error(error)
+            return res.Error('An error occurred')
+          }
+        }
       )
     })
   }

@@ -1,5 +1,4 @@
 import { createClient } from 'redis'
-import { promisify } from 'util'
 
 let _client
 const prefix = `${process.env.REDIS_PREFIX}:`
@@ -9,22 +8,19 @@ const getRedisClient = () => {
     return _client
   }
 
+  // redis[s]://[[username][:password]@][host][:port][/db-number]
   _client = createClient({
-    host: process.env.REDIS_HOST,
-    port: parseInt(process.env.REDIS_PORT || '6379'),
-    password: process.env.REDIS_PASSWORD
+    url: process.env.REDIS_CONNECTION_STRING
   })
+
   _client.on('error', error => {
-    console.error(error)
+    console.error('REDIS: ', error)
   })
-  _client.getAsync = promisify(_client.get).bind(_client)
   return _client
 }
 
 export default {
-  _getClient () {
-    return getRedisClient()
-  },
+  _getClient: getRedisClient,
   async set (
     key: string,
     value: string,
@@ -32,11 +28,17 @@ export default {
   ): Promise<void> {
     const keyWithPrefix = `${prefix}${key}`
     const client = this._getClient()
-    return client.set(keyWithPrefix, value, () => {
-      client.expire(keyWithPrefix, expiryTimeInMinutes * 60)
+    await client.connect()
+    await client.set(keyWithPrefix, value, {
+      EX: expiryTimeInMinutes * 60
     })
+    await client.disconnect()
   },
   async get (key: string): Promise<string> {
-    return this._getClient().getAsync(`${prefix}${key}`)
+    const client = this._getClient()
+    await client.connect()
+    const value = await client.get(`${prefix}${key}`)
+    await client.disconnect()
+    return value
   }
 }

@@ -1,28 +1,22 @@
-import fs from 'fs'
-import path from 'path'
-import handlebars from 'handlebars'
+import Email from './email'
 
-export default function invitationEmail (
-  to: string,
-  templateFields: {
-    firstName: string
-    companyName: string
-    setupPasswordLink: string
+interface InvitationEmailFields {
+  firstName: string
+  companyName: string
+  setupPasswordLink: string
+}
+
+export default class InvitationEmail extends Email<InvitationEmailFields> {
+  constructor (
+    toAddress: string,
+    userFirstName: string,
+    companyName: string,
+    otp: string
+  ) {
+    super(toAddress, 'Invitation', 'invitation', {
+      firstName: userFirstName,
+      companyName: companyName,
+      setupPasswordLink: `${process.env.SITE_URL}/login/confirm-password?otp=${otp}`
+    })
   }
-) {
-  const emailTemplateSource = fs.readFileSync(
-    path.join(__dirname, '../templates/invitation.hbs'),
-    'utf8'
-  )
-  const template = handlebars.compile(emailTemplateSource)
-  const htmlToSend = template(templateFields)
-
-  const mailOptions = {
-    from: '',
-    to: to,
-    subject: 'Invitation',
-    html: htmlToSend
-  }
-
-  return mailOptions
 }

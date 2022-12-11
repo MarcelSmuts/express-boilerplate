@@ -1,10 +1,6 @@
 import e, { Request, Response, NextFunction } from 'express'
 import passport from 'passport'
 
-function noAuth (_req: Request, _res: Response, next: NextFunction) {
-  return next()
-}
-
 function auth (req: Request, res: Response, next: NextFunction) {
   const authenticate = passport.authenticate(
     'jwt',
@@ -21,4 +17,4 @@ function auth (req: Request, res: Response, next: NextFunction) {
   authenticate(req, res, next)
 }
 
-export { auth, noAuth }
+export { auth }

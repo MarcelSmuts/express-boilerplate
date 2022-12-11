@@ -1,27 +1,17 @@
-import fs from 'fs'
-import path from 'path'
-import handlebars from 'handlebars'
+import Email from './email'
 
-export default function forgotPasswordEmail (
-  to: string,
-  templateFields: {
-    firstName: string
-    resetPasswordLink: string
+interface ForgotPasswordEmailFields {
+  firstName: string
+  resetPasswordLink: string
+}
+
+export default class ForgotPasswordEmail extends Email<
+  ForgotPasswordEmailFields
+> {
+  constructor (toAddress: string, userFirstName: string, otp: string) {
+    super(toAddress, 'Reset your password', 'forgot-password', {
+      firstName: userFirstName,
+      resetPasswordLink: `${process.env.SITE_URL}/login/confirm-password?otp=${otp}`
+    })
   }
-) {
-  const emailTemplateSource = fs.readFileSync(
-    path.join(__dirname, '../templates/forgot-password.hbs'),
-    'utf8'
-  )
-  const template = handlebars.compile(emailTemplateSource)
-  const htmlToSend = template(templateFields)
-
-  const mailOptions = {
-    from: '',
-    to: to,
-    subject: 'Reset your password',
-    html: htmlToSend
-  }
-
-  return mailOptions
 }
