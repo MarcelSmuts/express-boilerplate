@@ -6,7 +6,7 @@ Includes:
 
 - Typescript
 - Postgres database connection
-- Autnetication (Passport)
+- Authentication (Passport)
   - Local
   - JWT
 - Roles & Permissions (CASL)
@@ -14,7 +14,7 @@ Includes:
 - Request logging
 - Caching (Redis)
 - Email (nodemailer)
-- Request validation (Zod)
+- Request validation (Zod): TODO: Add express-validator
 - Test setup
 
 ### Requirements
